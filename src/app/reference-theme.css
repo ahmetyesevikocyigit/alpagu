@@ -555,18 +555,22 @@ h2 em {
     );
   }
   .home-hero-content {
+    text-align: center;
     padding-block: 325px 80px;
   }
   .home-hero h1 {
     font-size: clamp(82px, 22vw, 116px);
     line-height: 1.12;
+    margin-inline: auto;
   }
   .home-hero-subtitle {
     font-size: 16px;
     max-width: 320px;
     margin-top: 14px;
+    margin-inline: auto;
   }
   .hero-actions {
+    justify-content: center;
     gap: 24px;
     margin-top: 27px;
   }

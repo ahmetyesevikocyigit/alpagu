@@ -767,7 +767,8 @@ p {
   }
   .section-heading {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
     gap: 22px;
     margin-bottom: 30px;
   }
@@ -780,16 +781,22 @@ p {
   .page-hero {
     padding: 24px 0 48px;
   }
+  .page-hero > .container {
+    text-align: center;
+  }
   .breadcrumbs {
+    justify-content: center;
     margin-bottom: 35px;
     font-size: 10px;
   }
   .page-hero h1 {
     font-size: 40px;
+    margin-inline: auto;
   }
   .page-lead {
     font-size: 16px;
     margin-top: 20px;
+    margin-inline: auto;
   }
   .page-hero-icon {
     right: -50px;
@@ -830,11 +837,14 @@ p {
   }
   .project-detail-hero h1 {
     font-size: 42px;
+    margin-inline: auto;
   }
   .project-detail-hero p {
     font-size: 16px;
+    margin-inline: auto;
   }
   .project-detail-hero > .container {
+    text-align: center;
     padding-bottom: 53px;
   }
   .detail-grid {
