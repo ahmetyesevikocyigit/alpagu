@@ -92,6 +92,7 @@ else
     /usr/bin/npx --yes pnpm@11.19.0 build)
 fi
 chown -R alpagu:alpagu "$release_dir"
+install -d -o alpagu -g alpagu -m 0755 "$release_dir/.next/cache"
 
 check_port=$((APP_PORT + 10000))
 check_log="/tmp/alpagu-release-check-$release_id.log"
@@ -163,7 +164,8 @@ if [[ ! -e $nginx_site ]]; then
 fi
 
 systemctl daemon-reload
-systemctl enable --now alpagu.service
+systemctl enable alpagu.service
+systemctl restart alpagu.service
 nginx -t
 systemctl reload nginx
 
