@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
 import { indexable, siteUrl } from "@/lib/seo";
-import { getContent } from "@/lib/cms/content-store";
+import { readContentRecord } from "@/lib/cms/content-store";
 export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { projects } = await getContent();
+  const { content, updatedAt } = await readContentRecord();
   if (!indexable) return [];
   return [
     "",
@@ -13,9 +13,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/gonullu-ol",
     "/iletisim",
     "/gizlilik",
-    ...projects.filter((p) => p.published).map((p) => `/projeler/${p.slug}`),
+    ...content.projects
+      .filter((p) => p.published)
+      .map((p) => `/projeler/${p.slug}`),
   ].map((path) => ({
     url: `${siteUrl}${path}`,
+    lastModified: new Date(updatedAt),
     changeFrequency: "monthly",
     priority: path === "" ? 1 : path.startsWith("/projeler") ? 0.9 : 0.7,
   }));

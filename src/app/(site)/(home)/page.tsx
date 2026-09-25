@@ -18,6 +18,15 @@ export async function generateMetadata() {
 export default async function Home() {
   const { home, organization, faqs, news: allNews } = await getContent();
   const news = allNews.filter((n) => n.published).slice(0, 3);
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.q,
+      acceptedAnswer: { "@type": "Answer", text: faq.a },
+    })),
+  };
   return (
     <>
       <section className="home-hero" aria-labelledby="hero-title">
@@ -30,7 +39,7 @@ export default async function Home() {
             sizes="(max-width: 700px) 100vw, 70vw"
             loading="eager"
             fetchPriority="high"
-            quality={75}
+            quality={65}
           />
         </div>
         <div className="home-hero-shade" aria-hidden="true" />
@@ -145,6 +154,12 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c"),
+        }}
+      />
     </>
   );
 }

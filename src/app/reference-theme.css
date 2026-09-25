@@ -516,7 +516,7 @@ h2 em {
     gap: 10px;
   }
   .site-donate {
-    min-height: 42px;
+    min-height: 44px;
     padding: 11px 13px;
     font-size: 9px;
     letter-spacing: 0.04em;
@@ -528,7 +528,7 @@ h2 em {
   }
   .site-menu-toggle {
     border: 0;
-    width: 40px;
+    width: 44px;
     height: 44px;
   }
   .site-nav {
@@ -660,7 +660,7 @@ h2 em {
     font-size: 8px;
   }
   .site-menu-toggle {
-    width: 36px;
+    width: 44px;
   }
   .hero-actions {
     gap: 19px;
@@ -677,10 +677,4 @@ h2 em {
   .site-donate {
     transition: none;
   }
-}
-
-.site-shell:has(.loading-state) .site-header-overlay {
-  position: relative;
-  color: var(--ink);
-  background: #fff;
 }

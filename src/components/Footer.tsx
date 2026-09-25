@@ -59,6 +59,9 @@ export default async function Footer() {
                     </Link>
                   </li>
                 )}
+                <li>
+                  <Link href="/gizlilik">Gizlilik ve Çerezler</Link>
+                </li>
               </ul>
             </div>
             <div className={styles.column}>

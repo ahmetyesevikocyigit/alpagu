@@ -16,6 +16,7 @@ export default async function SiteLayout({
   const schema = {
     "@context": "https://schema.org",
     "@type": "NGO",
+    "@id": `${siteUrl}/#organization`,
     name: organization.name,
     alternateName: organization.shortName,
     url: siteUrl,
@@ -26,6 +27,16 @@ export default async function SiteLayout({
     areaServed: { "@type": "Country", name: "Türkiye" },
     sameAs: [organization.instagram],
     description: organization.footerText,
+  };
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${siteUrl}/#website`,
+    url: siteUrl,
+    name: organization.name,
+    alternateName: organization.shortName,
+    inLanguage: "tr-TR",
+    publisher: { "@id": `${siteUrl}/#organization` },
   };
   return (
     <>
@@ -42,6 +53,12 @@ export default async function SiteLayout({
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(schema).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(websiteSchema).replace(/</g, "\\u003c"),
         }}
       />
     </>

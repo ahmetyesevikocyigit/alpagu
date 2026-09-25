@@ -9,7 +9,10 @@ const results=[];
 for(const path of paths){
  const start=performance.now();const res=await fetch(base+path);const html=await res.text();
  assert.equal(res.status,200,path);assert.match(res.headers.get('content-type'),/text\/html/);
+ const main=html.match(/<main[^>]*>(.*?)<\/main>/s)?.[1] || '';
  assert.match(html,/<html lang="tr"/);assert.equal([...html.matchAll(/<h1[\s>]/g)].length,1,path);
+ assert.match(main,/<h1[\s>]/,`${path}: H1 must be present in the initial main HTML`);
+ assert.doesNotMatch(main,/Sayfa yükleniyor/,`${path}: initial main HTML must contain the page content`);
  assert.match(html,/<meta charSet="utf-8"/i);assert.match(html,/<meta name="description" content="[^"]{30,}"/);
  assert.equal(new URL(html.match(/<link rel="canonical" href="([^"]+)"/)?.[1]).href,new URL(path,canonicalBase).href);
  assert.match(html,/<meta property="og:locale" content="tr_TR"/);
@@ -30,7 +33,12 @@ const robots=await (await fetch(base+'/robots.txt')).text();
 assert.match(robots,indexable?/Allow: \//:/Disallow: \//);
 const sitemap=await (await fetch(base+'/sitemap.xml')).text();
 assert.equal([...sitemap.matchAll(/<loc>/g)].length,indexable?paths.length:0);
-if(indexable)assert.ok(robots.includes(canonicalBase+'/sitemap.xml'));
+if(indexable){
+ assert.ok(robots.includes(canonicalBase+'/sitemap.xml'));
+ assert.equal([...sitemap.matchAll(/<lastmod>/g)].length,paths.length);
+ assert.ok(results[0].structuredData.includes('FAQPage'));
+ assert.ok(results[0].structuredData.includes('WebSite'));
+}
 const image=await fetch(base+'/_next/image?url=%2Fimages%2Freading.webp&w=640&q=75', {headers:{Accept:'image/webp'}});
 assert.equal(image.status,200);assert.equal(image.headers.get('content-type'),'image/webp');
 const iban='TR900006400000134082638469';
