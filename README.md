@@ -97,3 +97,5 @@ Kartla online bağış / İş Bankası sanal POS entegrasyonu etkin değildir. B
 Türkçe yönetim paneli `/admin` adresindedir. Metinler, görseller, çalışmalar, haberler, sorular, iletişim ve bağış bilgileri panelden yönetilir. [Yönetim paneli rehberi](docs/ADMIN.md).
 
 23 Eylül 2026 tarihinde Vercel üretim yayını tamamlandı. Özel alan adı henüz bağlanmadı; Vercel adresi kullanılıyor.
+
+Hostinger VPS dağıtım dosyaları ve geri alma adımları için [docs/VPS.md](docs/VPS.md) belgesine bakın.
