@@ -23,12 +23,15 @@ export default function ProjectGallery({ projects }: { projects: Project[] }) {
     <div className="project-showcase">
       <div className="project-panels">
         {projects.map((project, index) => (
-          <article
+          <Link
             key={project.slug}
+            href={`/projeler/${project.slug}`}
             className={`project-panel ${activeIndex === index ? "is-active" : ""}`}
+            aria-label={`${project.title} projesini keşfedin`}
             onPointerEnter={(event) => {
               if (event.pointerType === "mouse") setActive(index);
             }}
+            onFocus={() => setActive(index)}
           >
             <Image
               src={project.image}
@@ -37,15 +40,12 @@ export default function ProjectGallery({ projects }: { projects: Project[] }) {
               sizes="(max-width: 700px) 100vw, 65vw"
             />
             <div className="panel-shade" />
-            <button
+            <span
               className="panel-trigger"
-              aria-expanded={activeIndex === index}
-              aria-controls={`panel-${project.slug}`}
-              aria-label={`${project.title} çalışmasını göster`}
-              onClick={() => setActive(index)}
+              aria-hidden={activeIndex === index}
             >
               <span>{project.title}</span>
-            </button>
+            </span>
             <div
               className="panel-copy"
               id={`panel-${project.slug}`}
@@ -55,15 +55,11 @@ export default function ProjectGallery({ projects }: { projects: Project[] }) {
                 <h3>{project.title}</h3>
                 <p>{project.summary}</p>
               </div>
-              <Link
-                href={`/projeler/${project.slug}`}
-                className="circle-arrow"
-                aria-label={`${project.title} projesini keşfedin`}
-              >
+              <span className="circle-arrow" aria-hidden="true">
                 <ArrowUpRight size={27} />
-              </Link>
+              </span>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
       <div className="showcase-controls">

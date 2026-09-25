@@ -48,6 +48,19 @@ test("unauthorized APIs and cross-origin login are rejected", async ({
   expect(html).toContain("Yönetim Paneli");
   expect(html).toContain('id="admin-login-password"');
 });
+test("featured project images link across their full surface", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const cards = page.locator('a.project-panel[href^="/projeler/"]');
+  await expect(cards).toHaveCount(3);
+  const firstCard = cards.first();
+  const href = await firstCard.getAttribute("href");
+  expect(href).toBeTruthy();
+  await firstCard.scrollIntoViewIfNeeded();
+  await firstCard.click({ position: { x: 48, y: 48 } });
+  await expect(page).toHaveURL(new RegExp(`${href}$`));
+});
 test("login cookies, CSRF, logout and session revocation", async ({
   request,
 }) => {
