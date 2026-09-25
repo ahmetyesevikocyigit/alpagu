@@ -1,6 +1,6 @@
 # Yönetim paneli
 
-Panel: https://alpagu.187.124.169.67.sslip.io/admin
+Panel: https://alpagudernegi.org/admin
 
 Tek yönetim şifresiyle giriş yapılır. **Kaydet**, ekrandaki tüm kaydedilmemiş içerik değişikliklerini hemen yayımlar. Ayrı taslak veya yayınlama adımı yoktur. İnternete açık site üzerinde değişiklik görmek için sayfayı yenileyin.
 

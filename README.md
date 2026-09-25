@@ -2,7 +2,7 @@
 
 Next.js App Router ve TypeScript ile hazırlanmış kurumsal dernek sitesi.
 
-VPS önizleme adresi: https://alpagu.187.124.169.67.sslip.io
+Canlı adres: https://alpagudernegi.org
 GitHub deposu: https://github.com/ahmetyesevikocyigit/alpagu
 Sunucu: Hostinger VPS (`187.124.169.67`), systemd + Nginx + Let's Encrypt.
 
@@ -72,7 +72,7 @@ Sık sorulan sorular aynı `name` değerine sahip yerel HTML `details` öğeleri
 - Statik üretim, responsive görseller, yerel fontlar, güvenlik başlıkları
 - `robots.txt`, `sitemap.xml`, favicon ve sosyal paylaşım görseli
 
-VPS önizlemesinde `NEXT_PUBLIC_SITE_URL=https://alpagu.187.124.169.67.sslip.io` ve `SITE_INDEXABLE=false` kullanılır. Özel alan adı bağlandığında canonical adres güncellenip `SITE_INDEXABLE=true` ile yeni GitHub Linux paketi oluşturulmalıdır. Sitemap yayımlanan çalışma sayfalarıyla otomatik güncellenir.
+Canlı derlemede `NEXT_PUBLIC_SITE_URL=https://alpagudernegi.org` ve `SITE_INDEXABLE=true` kullanılır. Sitemap yayımlanan çalışma sayfalarıyla otomatik güncellenir.
 
 GitHub'da Linux yayın paketini üretip Hostinger VPS'e dağıtmak için:
 
@@ -84,7 +84,7 @@ gh workflow run vps-build.yml --repo ahmetyesevikocyigit/alpagu
 Canlı sürümün sayfa, bağlantı, SEO, 404 ve WebP kontrolü:
 
 ```sh
-TEST_BASE_URL=https://alpagu.187.124.169.67.sslip.io TEST_CANONICAL_URL=https://alpagu.187.124.169.67.sslip.io TEST_INDEXABLE=false TEST_REPORT=verification-vps.json node scripts/verify-site.mjs
+TEST_BASE_URL=https://alpagudernegi.org TEST_CANONICAL_URL=https://alpagudernegi.org TEST_INDEXABLE=true TEST_REPORT=verification-vps.json node scripts/verify-site.mjs
 ```
 
 Kaynak kod GitHub'da tutulur. GitHub Actions tip kontrolü ve 12 uçtan uca testi geçtikten sonra bağımsız Linux paketini üretir; VPS yalnız bu hazır paketi çalıştırır.
@@ -95,6 +95,6 @@ Kartla online bağış / İş Bankası sanal POS entegrasyonu etkin değildir. B
 
 Türkçe yönetim paneli `/admin` adresindedir. Metinler, görseller, çalışmalar, haberler, sorular, iletişim ve bağış bilgileri panelden yönetilir. [Yönetim paneli rehberi](docs/ADMIN.md).
 
-25 Eylül 2026 tarihinde GitHub'dan Hostinger VPS yayını tamamlandı. Özel alan adı kaydedilene kadar SSL'li ve indekslemeye kapalı VPS önizleme adresi kullanılıyor.
+25 Eylül 2026 tarihinde GitHub'dan Hostinger VPS yayını, özel alan adı, HTTPS ve Google Search Console kurulumu tamamlandı.
 
 Hostinger VPS dağıtım dosyaları ve geri alma adımları için [docs/VPS.md](docs/VPS.md) belgesine bakın.

@@ -8,12 +8,12 @@ on:
       site_url:
         description: Canonical HTTPS address baked into the release
         required: false
-        default: https://alpagu.187.124.169.67.sslip.io
+        default: https://alpagudernegi.org
       indexable:
         description: Allow search-engine indexing
         required: false
         type: boolean
-        default: false
+        default: true
 
 permissions:
   contents: read
@@ -27,8 +27,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
-      NEXT_PUBLIC_SITE_URL: ${{ inputs.site_url || 'https://alpagu.187.124.169.67.sslip.io' }}
-      SITE_INDEXABLE: ${{ inputs.indexable || 'false' }}
+      NEXT_PUBLIC_SITE_URL: ${{ inputs.site_url || 'https://alpagudernegi.org' }}
+      SITE_INDEXABLE: ${{ inputs.indexable || 'true' }}
     steps:
       - uses: actions/checkout@v6
 

@@ -18,8 +18,8 @@ Sunucuda root olarak:
 GitHub Actions, Ubuntu üzerinde test edilmiş bağımsız Linux paketini `alpagu-vps` adıyla üretir. İndirilen paket sunucuya aktarıldıktan sonra:
 
 ```sh
-SITE_HOST=alpagu.187.124.169.67.sslip.io \
-SITE_INDEXABLE=false \
+SITE_HOST=alpagudernegi.org \
+SITE_INDEXABLE=true \
 PREBUILT_ARCHIVE=/tmp/alpagu-vps.tar.gz \
 bash /tmp/alpagu-bootstrap/deploy/vps/deploy.sh
 ```
@@ -28,7 +28,7 @@ bash /tmp/alpagu-bootstrap/deploy/vps/deploy.sh
 
 İlk kurulum güvenli bir yönetim şifresi üretip yalnız bir kez terminale yazdırır. Sunucuda yalnız scrypt hash'in systemd ile şifrelenmiş sürümü saklanır.
 
-Alan adı bağlandıktan sonra `SITE_HOST=alpagudernegi.org` ve `SITE_INDEXABLE=true` ile yeniden dağıtım alınmalı, Nginx yapılandırması alan adına göre güncellenmeli ve Certbot sertifikası alınmalıdır.
+Canlı alan adı `alpagudernegi.org` Nginx üzerinden yayınlanır. `www` trafiği kanonik kök alan adına yönlendirilir ve Let's Encrypt sertifikası Certbot tarafından otomatik yenilenir.
 
 ## Doğrulama
 

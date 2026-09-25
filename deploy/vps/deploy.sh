@@ -6,9 +6,9 @@ if [[ ${EUID} -ne 0 ]]; then
   exit 1
 fi
 
-SITE_HOST=${SITE_HOST:-alpagu.187.124.169.67.sslip.io}
+SITE_HOST=${SITE_HOST:-alpagudernegi.org}
 APP_PORT=${APP_PORT:-3194}
-SITE_INDEXABLE=${SITE_INDEXABLE:-false}
+SITE_INDEXABLE=${SITE_INDEXABLE:-true}
 GIT_URL=${GIT_URL:-https://github.com/ahmetyesevikocyigit/alpagu.git}
 GIT_REF=${GIT_REF:-main}
 PREBUILT_ARCHIVE=${PREBUILT_ARCHIVE:-}
