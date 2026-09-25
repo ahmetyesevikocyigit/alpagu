@@ -61,6 +61,29 @@ test("featured project images link across their full surface", async ({
   await firstCard.click({ position: { x: 48, y: 48 } });
   await expect(page).toHaveURL(new RegExp(`${href}$`));
 });
+test("public page changes use a short accessible focus transition", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const transition = page.locator(".page-transition");
+  await expect(transition).toHaveCSS("animation-name", "page-focus-in");
+  await page
+    .getByRole("navigation", { name: "Ana menü" })
+    .getByRole("link", { name: "Hakkımızda", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/hakkimizda$/);
+  await expect(page.locator(".page-transition")).toHaveCSS(
+    "animation-duration",
+    "0.26s",
+  );
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/projeler");
+  await expect(page.locator(".page-transition")).toHaveCSS(
+    "animation-name",
+    "none",
+  );
+});
 test("login cookies, CSRF, logout and session revocation", async ({
   request,
 }) => {
