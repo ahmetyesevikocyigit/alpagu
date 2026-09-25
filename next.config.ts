@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
-  output: "standalone",
+  output:
+    process.env.NEXT_OUTPUT_STANDALONE === "true" ? "standalone" : undefined,
   poweredByHeader: false,
   compress: true,
   images: {

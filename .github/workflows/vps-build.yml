@@ -45,12 +45,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install browser test runtime
+        run: pnpm exec playwright install --with-deps chromium
+
       - name: Verify types and behavior
         run: |
           pnpm typecheck
           pnpm test
 
       - name: Build standalone Linux release
+        env:
+          NEXT_OUTPUT_STANDALONE: "true"
         run: |
           pnpm build
           cp -R public .next/standalone/public
