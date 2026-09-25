@@ -1,6 +1,6 @@
 # Yönetim paneli
 
-Panel: https://alpagu-dernegi.vercel.app/admin
+Panel: https://alpagu.187.124.169.67.sslip.io/admin
 
 Tek yönetim şifresiyle giriş yapılır. **Kaydet**, ekrandaki tüm kaydedilmemiş içerik değişikliklerini hemen yayımlar. Ayrı taslak veya yayınlama adımı yoktur. İnternete açık site üzerinde değişiklik görmek için sayfayı yenileyin.
 
@@ -28,31 +28,15 @@ pnpm admin:password
 pnpm dev
 ```
 
-Şifre terminalde görünmeden alınır ve scrypt hash olarak `.env.local` ile `.cms/password-hash` dosyasına yazılır. Gerçek şifre kaynak koda yazılmaz. Yerel içerikler `.cms/` altında atomik dosya yazımı ve kilitle kaydedilir. Bu dizin, ortam dosyaları ve test çıktıları Git ve Vercel yüklemelerine dahil edilmez.
+Şifre terminalde görünmeden alınır ve scrypt hash olarak `.env.local` ile `.cms/password-hash` dosyasına yazılır. Gerçek şifre kaynak koda yazılmaz. Yerel içerikler `.cms/` altında atomik dosya yazımı ve kilitle kaydedilir. Bu dizin, ortam dosyaları ve test çıktıları Git'e dahil edilmez.
 
-## Vercel yapılandırması
+## Hostinger VPS yapılandırması
 
-Mevcut proje: `bgc-nakliyat/alpagu-dernegi`. CLI hesabı: `ahmetagsakalli`.
+Uygulama `alpagu.service` ile çalışır ve yalnız `127.0.0.1:3194` üzerinden Nginx'e bağlanır. Kalıcı içerik, oturum ve görseller `/var/lib/alpagu/cms` altında tutulur. Kod sürümleri `/opt/alpagu/releases` altındadır; yeni dağıtımlar kalıcı veriyi değiştirmez.
 
-Her ortam için birbirinden ayrı özel içerik deposu ve açık görsel deposu kullanılır:
+Başlangıç yönetim hash'i `/etc/credstore.encrypted/alpagu-cms-password.cred` içinde systemd tarafından şifrelenmiş kimlik olarak saklanır. Uygulama kullanıcısı düz parolaya veya kimlik dosyasının şifrelenmemiş haline erişmez.
 
-| Ortam      | Özel içerik        | Açık görseller       |
-| ---------- | ------------------ | -------------------- |
-| Production | alpagu-cms         | alpagu-media         |
-| Preview    | alpagu-preview-cms | alpagu-preview-media |
-
-Bağlantılar OIDC kullanır; uzun ömürlü Blob erişim token’ı tutulmaz. Ortam değişkenleri:
-
-- `CMS_PRIVATE_STORE_ID`: ilgili özel depo, yalnız sunucuda.
-- `CMS_PUBLIC_STORE_ID`: ilgili açık depo; Next Image yalnız bu deponun görsellerine izin verir.
-- `CMS_PASSWORD_HASH`: scrypt hash, Vercel Secret türü.
-- `CMS_ORIGIN`: canlı yönetim adresinin kökü, ör. `https://alpagu-dernegi.vercel.app`.
-- `NEXT_PUBLIC_SITE_URL`: canonical alan adı.
-- `SITE_INDEXABLE`: yalnız Production için `true`.
-
-Preview, Vercel’in kendi deployment ve branch adresleri üzerinden yönetilebilir. Önizleme verileri canlı depoya yazılmaz. Özel alan adı bağlandığında hem `CMS_ORIGIN` hem `NEXT_PUBLIC_SITE_URL` değiştirilip yeniden dağıtılmalıdır.
-
-İçerik özel depoda `content/published.json`, oturum ve giriş sınırı `auth/state.json`, görsel envanteri `media/index.json` olarak tutulur. Kayıtlar güçlü ETag koşuluyla atomik yazılır. Next.js sunucu önbelleği başarılı kayıt sonrası derhal geçersizleştirilir. Depo hataları başlangıç verisine dönülerek gizlenmez. İlk kayıt yoksa depodaki mevcut başlangıç içeriği kullanılır; panelden ilk başarılı kayıt bunu kalıcılaştırır. Sonraki dağıtımlar kaydedilmiş içerikleri değiştirmez.
+İçerik `content/published.json`, oturum ve giriş sınırı `auth/state.json`, görsel envanteri `media/index.json` olarak tutulur. Kayıtlar atomik dosya yazımı ve kilitlemeyle korunur. Next.js sunucu önbelleği başarılı kayıt sonrası derhal geçersizleştirilir.
 
 ## Şifre değiştirme
 
@@ -64,32 +48,22 @@ Yeni şifre, rastgele tuzla Argon2id (19 MiB, 2 tur, 1 paralellik) hash olarak y
 
 ## Unutulan şifreyi sıfırlama
 
-Geliştirici erişimiyle yeni bir başlangıç hash’i oluşturup ortam değişkenini yenileyin. Bu kurtarma işlemi paneldeki şifreyi ve eski oturumları geçersiz kılar:
-
-```sh
-pnpm admin:password
-pnpm dlx vercel@59.25.0 env add CMS_PASSWORD_HASH production,preview --sensitive --force --yes --scope bgc-nakliyat < .cms/password-hash
-pnpm dlx vercel@59.25.0 deploy --prod --yes --scope bgc-nakliyat
-```
-
-Preview ortamı da kullanılacaksa ayrıca preview dağıtımı yapın. Değişen hash eski oturumları geçersiz kılar. Şifreyi komut satırı argümanına, Git’e, loglara veya paylaşılacak belgelere yazmayın.
+Paneldeki **Şifre değiştir** alanı tercih edilir. Başlangıç kimliğiyle kurtarma gerekiyorsa geliştirici yeni scrypt hash'ini systemd kimlik deposuna şifreleyip `alpagu.service` birimini yeniden başlatmalıdır. Düz şifreyi komut satırı argümanına, Git'e veya loglara yazmayın.
 
 Oturumlar 12 saattir; HttpOnly, SameSite=Strict ve canlıda Secure çerez kullanılır. Tüm yönetim API’leri oturum kontrolü yapar; yazma işlemleri CSRF ve origin doğrulaması gerektirir. Beş başarısız girişten sonra ilgili adres için 15 dakika bekleme uygulanır. Panel noindex ve no-store ile sunulur.
 
 ## Doğrulama ve dağıtım
 
-Fonksiyonlar `vercel.json` ile içerik depolarının bulunduğu Frankfurt (`fra1`) bölgesinde çalışır. Giriş yanıtı, doğrulama tamamlandıktan sonra düzenleyici içeriğini de taşır; tarayıcı ikinci bir içerik isteğini beklemez. Çerez yoksa giriş formu doğrudan sunucu HTML’inde gösterilir. Çerez varlığı yalnız ilk görünümü seçer; her yönetim API’si gerçek oturum kontrolünü yapar.
+Next.js uygulaması Hostinger VPS'te systemd kaynak sınırları altında çalışır. Giriş yanıtı, doğrulama tamamlandıktan sonra düzenleyici içeriğini de taşır; tarayıcı ikinci bir içerik isteğini beklemez. Çerez yoksa giriş formu doğrudan sunucu HTML’inde gösterilir. Çerez varlığı yalnız ilk görünümü seçer; her yönetim API’si gerçek oturum kontrolünü yapar.
 
 Kayıt sırasında okunan içerik ve ETag birlikte kullanılır; fazladan okuma kaldırılırken eşzamanlı yazma koruması korunur. Yalnız hazır site görselleri kullanılıyorsa görsel envanteri okunmaz. Oturumlar paylaşılan bellekte veya CDN’de önbelleğe alınmaz; çıkış ve şifre değişikliği geçerliliğini korur.
 
 ```sh
 pnpm typecheck
 pnpm test
-pnpm dlx vercel@59.25.0 deploy --yes --scope bgc-nakliyat
-# Önizlemeyi doğruladıktan sonra, Production ortamıyla yeni derleme:
-pnpm dlx vercel@59.25.0 deploy --prod --yes --scope bgc-nakliyat
+gh workflow run vps-build.yml --repo ahmetyesevikocyigit/alpagu
 ```
 
 `pnpm test` üretim derlemesi alır ve `127.0.0.1:3100` üzerinde rastgele geçici içerik diziniyle test sunucusu çalıştırır. Test şifresi yalnız bu yerel sunucu içindir. Gerçek CMS depoları kullanılmaz. Testler yetkisiz erişim, CSRF, oturum iptali, giriş sınırı, eşzamanlı kayıt, doğrulama, geri alma, proje adresleri, WebP yükleme, masaüstü ve mobil akışları kapsar.
 
-Önizlemeyi Production’a doğrudan promote etmeyin: ortamların depoları farklıdır. Canlı için `deploy --prod` ile doğru ortam değişkenleri kullanılarak derleme alın. Kod geri alma içerik geçmişinden bağımsızdır; gerekirse önceki Vercel deployment’a rollback, içerik için panelden geri yükleme yapılır.
+Kod geri alma içerik geçmişinden bağımsızdır. Kod için `deploy/vps/rollback.sh`, içerik için paneldeki geri yükleme özelliği kullanılır.

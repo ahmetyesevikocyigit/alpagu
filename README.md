@@ -2,17 +2,16 @@
 
 Next.js App Router ve TypeScript ile hazırlanmış kurumsal dernek sitesi.
 
-Canlı adres: https://alpagu-dernegi.vercel.app
-GitHub deposu: https://github.com/ahmetagsakalli/alpagu
-Vercel projesi: https://vercel.com/bgc-nakliyat/alpagu-dernegi
-Hesap: `ahmetagsakalli`; çalışma alanı: `bgc-nakliyat` (guncelyayin).
+VPS önizleme adresi: https://alpagu.187.124.169.67.sslip.io
+GitHub deposu: https://github.com/ahmetyesevikocyigit/alpagu
+Sunucu: Hostinger VPS (`187.124.169.67`), systemd + Nginx + Let's Encrypt.
 
 ## Çalıştırma
 
 Node.js 24.x ve pnpm 11.19.0 gerekir.
 
 ```sh
-git clone https://github.com/ahmetagsakalli/alpagu.git
+git clone https://github.com/ahmetyesevikocyigit/alpagu.git
 cd alpagu
 pnpm install --frozen-lockfile
 pnpm dev
@@ -45,7 +44,7 @@ Kurumsal içerikler dernek tarafından sağlanan bilgiler ve resmî Instagram he
 
 ## Görsel optimizasyonu
 
-`sharp` doğrudan bağımlılık olarak kuruldu. Tüm fotoğraflar WebP'ye dönüştürüldü. `next/image`, farklı ekran boyutlarında uygun genişliği sunar; ilk büyük görsel öncelikli, aşağıdaki görseller tembel yüklenir. Başlangıç görselleri ve yazı tipleri yerelden; panelden yüklenen görseller projeye ait Vercel Blob deposundan sunulur.
+`sharp` doğrudan bağımlılık olarak kuruldu. Tüm fotoğraflar WebP'ye dönüştürüldü. `next/image`, farklı ekran boyutlarında uygun genişliği sunar; ilk büyük görsel öncelikli, aşağıdaki görseller tembel yüklenir. Başlangıç görselleri ve yazı tipleri yerelden; panelden yüklenen görseller VPS'teki kalıcı CMS veri dizininden sunulur.
 
 ```sh
 pnpm optimize:images /tam/yol/orijinal-gorseller
@@ -73,22 +72,22 @@ Sık sorulan sorular aynı `name` değerine sahip yerel HTML `details` öğeleri
 - Statik üretim, responsive görseller, yerel fontlar, güvenlik başlıkları
 - `robots.txt`, `sitemap.xml`, favicon ve sosyal paylaşım görseli
 
-Üretim ortamında `NEXT_PUBLIC_SITE_URL=https://alpagu-dernegi.vercel.app` ve `SITE_INDEXABLE=true` Vercel üzerinde tanımlıdır. Canonical, sosyal paylaşım ve yapılandırılmış veri adresleri canlı alan adını kullanır; robots taramaya açıktır ve sitemap yayımlanan çalışma sayfalarıyla otomatik güncellenir. Önizlemeler ve yerel çalışma varsayılan olarak indekslemeye kapalıdır. Özel alan adı bağlandığında `NEXT_PUBLIC_SITE_URL` güncellenip yeniden yayınlanmalıdır.
+VPS önizlemesinde `NEXT_PUBLIC_SITE_URL=https://alpagu.187.124.169.67.sslip.io` ve `SITE_INDEXABLE=false` kullanılır. Özel alan adı bağlandığında canonical adres güncellenip `SITE_INDEXABLE=true` ile yeni GitHub Linux paketi oluşturulmalıdır. Sitemap yayımlanan çalışma sayfalarıyla otomatik güncellenir.
 
-Projeyi Vercel hesabınıza bağlayıp yeniden yayınlamak için:
+GitHub'da Linux yayın paketini üretip Hostinger VPS'e dağıtmak için:
 
 ```sh
-pnpm dlx vercel@59.25.0 link --project alpagu-dernegi --scope bgc-nakliyat
-pnpm dlx vercel@59.25.0 deploy --prod --yes --scope bgc-nakliyat
+gh workflow run vps-build.yml --repo ahmetyesevikocyigit/alpagu
+# İndirilen alpagu-vps paketi deploy/vps/deploy.sh ile VPS'e kurulur.
 ```
 
 Canlı sürümün sayfa, bağlantı, SEO, 404 ve WebP kontrolü:
 
 ```sh
-TEST_BASE_URL=https://alpagu-dernegi.vercel.app TEST_CANONICAL_URL=https://alpagu-dernegi.vercel.app TEST_INDEXABLE=true TEST_REPORT=verification-production.json node scripts/verify-site.mjs
+TEST_BASE_URL=https://alpagu.187.124.169.67.sslip.io TEST_CANONICAL_URL=https://alpagu.187.124.169.67.sslip.io TEST_INDEXABLE=false TEST_REPORT=verification-vps.json node scripts/verify-site.mjs
 ```
 
-`.gitignore` ve `.vercelignore`, yerel ortam dosyalarını, özel çalışma notlarını ve kontrol raporlarını dışarıda tutar. Kaynak kod GitHub'da tutulur; Vercel yayını CLI ile yapılır. Vercel için otomatik GitHub yayını henüz bağlı değildir.
+Kaynak kod GitHub'da tutulur. GitHub Actions tip kontrolü ve 12 uçtan uca testi geçtikten sonra bağımsız Linux paketini üretir; VPS yalnız bu hazır paketi çalıştırır.
 
 ## Tamamlanmayı bekleyen entegrasyonlar
 
@@ -96,6 +95,6 @@ Kartla online bağış / İş Bankası sanal POS entegrasyonu etkin değildir. B
 
 Türkçe yönetim paneli `/admin` adresindedir. Metinler, görseller, çalışmalar, haberler, sorular, iletişim ve bağış bilgileri panelden yönetilir. [Yönetim paneli rehberi](docs/ADMIN.md).
 
-23 Eylül 2026 tarihinde Vercel üretim yayını tamamlandı. Özel alan adı henüz bağlanmadı; Vercel adresi kullanılıyor.
+25 Eylül 2026 tarihinde GitHub'dan Hostinger VPS yayını tamamlandı. Özel alan adı kaydedilene kadar SSL'li ve indekslemeye kapalı VPS önizleme adresi kullanılıyor.
 
 Hostinger VPS dağıtım dosyaları ve geri alma adımları için [docs/VPS.md](docs/VPS.md) belgesine bakın.
