@@ -15,12 +15,16 @@ Uygulama Hostinger VPS üzerinde systemd ile çalışır ve Nginx üzerinden yay
 
 Sunucuda root olarak:
 
+GitHub Actions, Ubuntu üzerinde test edilmiş bağımsız Linux paketini `alpagu-vps` adıyla üretir. İndirilen paket sunucuya aktarıldıktan sonra:
+
 ```sh
-git clone --depth 1 https://github.com/ahmetyesevikocyigit/alpagu.git /tmp/alpagu-bootstrap
 SITE_HOST=alpagu.187.124.169.67.sslip.io \
 SITE_INDEXABLE=false \
+PREBUILT_ARCHIVE=/tmp/alpagu-vps.tar.gz \
 bash /tmp/alpagu-bootstrap/deploy/vps/deploy.sh
 ```
+
+`PREBUILT_ARCHIVE` kullanılmadığında betik kaynak kodu sunucuda derleyebilir. Paylaşımlı VPS belleğini korumak için canlı dağıtımlarda hazır Linux paketi tercih edilir.
 
 İlk kurulum güvenli bir yönetim şifresi üretip yalnız bir kez terminale yazdırır. Sunucuda yalnız scrypt hash'in systemd ile şifrelenmiş sürümü saklanır.
 

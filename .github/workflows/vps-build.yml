@@ -1,0 +1,68 @@
+name: VPS release package
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: Canonical HTTPS address baked into the release
+        required: false
+        default: https://alpagu.187.124.169.67.sslip.io
+      indexable:
+        description: Allow search-engine indexing
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vps-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      NEXT_PUBLIC_SITE_URL: ${{ inputs.site_url || 'https://alpagu.187.124.169.67.sslip.io' }}
+      SITE_INDEXABLE: ${{ inputs.indexable || 'false' }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Enable the pinned package manager
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.19.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify types and behavior
+        run: |
+          pnpm typecheck
+          pnpm test
+
+      - name: Build standalone Linux release
+        run: |
+          pnpm build
+          cp -R public .next/standalone/public
+          mkdir -p .next/standalone/.next
+          cp -R .next/static .next/standalone/.next/static
+          cp -R deploy .next/standalone/deploy
+          tar -C .next/standalone -czf "alpagu-vps-${GITHUB_SHA}.tar.gz" .
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: alpagu-vps
+          path: alpagu-vps-${{ github.sha }}.tar.gz
+          if-no-files-found: error
+          retention-days: 14

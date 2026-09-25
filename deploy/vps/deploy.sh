@@ -11,6 +11,7 @@ APP_PORT=${APP_PORT:-3194}
 SITE_INDEXABLE=${SITE_INDEXABLE:-false}
 GIT_URL=${GIT_URL:-https://github.com/ahmetyesevikocyigit/alpagu.git}
 GIT_REF=${GIT_REF:-main}
+PREBUILT_ARCHIVE=${PREBUILT_ARCHIVE:-}
 
 if [[ ! $SITE_HOST =~ ^[a-z0-9.-]+$ ]]; then
   echo "Invalid SITE_HOST." >&2
@@ -61,33 +62,59 @@ fi
 
 release_id="$(date -u +%Y%m%d%H%M%S)-$(printf '%s' "$GIT_REF" | tr -c 'a-zA-Z0-9._-' '-')"
 release_dir="/opt/alpagu/releases/$release_id"
-git clone --depth 1 --branch "$GIT_REF" "$GIT_URL" "$release_dir"
+if [[ -n $PREBUILT_ARCHIVE ]]; then
+  if [[ ! -f $PREBUILT_ARCHIVE ]]; then
+    echo "Prebuilt archive not found: $PREBUILT_ARCHIVE" >&2
+    exit 1
+  fi
+  install -d "$release_dir"
+  tar -xzf "$PREBUILT_ARCHIVE" -C "$release_dir"
+  if [[ ! -f $release_dir/server.js ]]; then
+    echo "The prebuilt archive does not contain server.js." >&2
+    exit 1
+  fi
+else
+  git clone --depth 1 --branch "$GIT_REF" "$GIT_URL" "$release_dir"
+  chown -R alpagu:alpagu "$release_dir"
+
+  (cd "$release_dir" && runuser -u alpagu -- env \
+    HOME=/var/lib/alpagu \
+    npm_config_cache=/var/lib/alpagu/.npm \
+    NEXT_PUBLIC_SITE_URL="https://$SITE_HOST" \
+    SITE_INDEXABLE="$SITE_INDEXABLE" \
+    /usr/bin/npx --yes pnpm@11.19.0 install --frozen-lockfile)
+
+  (cd "$release_dir" && runuser -u alpagu -- env \
+    HOME=/var/lib/alpagu \
+    npm_config_cache=/var/lib/alpagu/.npm \
+    NEXT_PUBLIC_SITE_URL="https://$SITE_HOST" \
+    SITE_INDEXABLE="$SITE_INDEXABLE" \
+    /usr/bin/npx --yes pnpm@11.19.0 build)
+fi
 chown -R alpagu:alpagu "$release_dir"
-
-(cd "$release_dir" && runuser -u alpagu -- env \
-  HOME=/var/lib/alpagu \
-  npm_config_cache=/var/lib/alpagu/.npm \
-  NEXT_PUBLIC_SITE_URL="https://$SITE_HOST" \
-  SITE_INDEXABLE="$SITE_INDEXABLE" \
-  /usr/bin/npx --yes pnpm@11.19.0 install --frozen-lockfile)
-
-(cd "$release_dir" && runuser -u alpagu -- env \
-  HOME=/var/lib/alpagu \
-  npm_config_cache=/var/lib/alpagu/.npm \
-  NEXT_PUBLIC_SITE_URL="https://$SITE_HOST" \
-  SITE_INDEXABLE="$SITE_INDEXABLE" \
-  /usr/bin/npx --yes pnpm@11.19.0 build)
 
 check_port=$((APP_PORT + 10000))
 check_log="/tmp/alpagu-release-check-$release_id.log"
-(cd "$release_dir" && runuser -u alpagu -- env \
-  NODE_ENV=production \
-  NEXT_PUBLIC_SITE_URL="https://$SITE_HOST" \
-  SITE_INDEXABLE="$SITE_INDEXABLE" \
-  CMS_LOCAL_DIR=/var/lib/alpagu/cms \
-  CMS_PASSWORD_HASH=release-check-only \
-  /usr/bin/node node_modules/next/dist/bin/next start \
-    --hostname 127.0.0.1 --port "$check_port") >"$check_log" 2>&1 &
+if [[ -f $release_dir/server.js ]]; then
+  (cd "$release_dir" && runuser -u alpagu -- env \
+    NODE_ENV=production \
+    HOSTNAME=127.0.0.1 \
+    PORT="$check_port" \
+    NEXT_PUBLIC_SITE_URL="https://$SITE_HOST" \
+    SITE_INDEXABLE="$SITE_INDEXABLE" \
+    CMS_LOCAL_DIR=/var/lib/alpagu/cms \
+    CMS_PASSWORD_HASH=release-check-only \
+    /usr/bin/node server.js) >"$check_log" 2>&1 &
+else
+  (cd "$release_dir" && runuser -u alpagu -- env \
+    NODE_ENV=production \
+    NEXT_PUBLIC_SITE_URL="https://$SITE_HOST" \
+    SITE_INDEXABLE="$SITE_INDEXABLE" \
+    CMS_LOCAL_DIR=/var/lib/alpagu/cms \
+    CMS_PASSWORD_HASH=release-check-only \
+    /usr/bin/node node_modules/next/dist/bin/next start \
+      --hostname 127.0.0.1 --port "$check_port") >"$check_log" 2>&1 &
+fi
 check_pid=$!
 cleanup_check() {
   kill "$check_pid" >/dev/null 2>&1 || true
